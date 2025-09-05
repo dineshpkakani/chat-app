@@ -1,0 +1,57 @@
+<html>
+<head>
+  <title>Jay's Team</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; }
+    .chat-box { border: 1px solid #ccc; padding: 1rem; height: 300px; overflow-y: scroll; background: #f9f9f9; }
+    .message { margin: 0.5rem 0; }
+    .sender { font-weight: bold; color: #667eea; }
+  </style>
+  <script>
+    function loadMessages() {
+      fetch("chat-data")
+        .then(res => res.json())
+        .then(data => {
+          const chatBox = document.getElementById("chatBox");
+          chatBox.innerHTML = "";
+          data.forEach(m => {
+            const div = document.createElement("div");
+            div.className = "message";
+            div.innerHTML = "<span class='sender'>" + m.sender + ":</span> " +
+                            m.message + " <small>(" + m.timestamp + ")</small>";
+            chatBox.appendChild(div);
+          });
+          chatBox.scrollTop = chatBox.scrollHeight;
+        });
+    }
+
+    function sendMessage(e) {
+      e.preventDefault();
+      const form = document.getElementById("chatForm");
+      const formData = new FormData(form);
+      fetch("chat", { method: "POST", body: formData })
+        .then(() => {
+          form.message.value = "";
+          loadMessages();
+        });
+    }
+
+    window.onload = function() {
+      loadMessages();
+      setInterval(loadMessages, 10000);
+    }
+  </script>
+</head>
+<body>
+  <h2>Spring Boot Chat Room</h2>
+
+  <div class="chat-box" id="chatBox"></div>
+
+  <form id="chatForm" onsubmit="sendMessage(event)">
+      <input type="text" name="sender" placeholder="Your name" value="rcm" style="display: none" required>
+      <input type="text" name="receiver" placeholder="Receiver" value="wqd" style="display: none" required><br><br>
+       <input type="text" name="message" placeholder="Type message..." required style="width:70%;">
+    <button type="submit">Send</button>
+  </form>
+</body>
+</html>
